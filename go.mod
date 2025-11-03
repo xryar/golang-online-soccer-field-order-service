@@ -3,13 +3,11 @@ module order-service
 go 1.24.4
 
 require (
-	github.com/SebastiaanKlippert/go-wkhtmltopdf v1.9.3
 	github.com/dustin/go-humanize v1.0.1
 	github.com/gin-gonic/gin v1.11.0
 	github.com/go-playground/validator/v10 v10.28.0
 	github.com/google/uuid v1.6.0
-	github.com/midtrans/midtrans-go v1.3.8
-	github.com/parnurzeal/gorequest v0.3.0
+	github.com/parnurzeal/gorequest v0.2.16
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/viper v1.21.0
 	gorm.io/driver/postgres v1.6.0
@@ -66,4 +64,5 @@ require (
 	golang.org/x/text v0.29.0 // indirect
 	golang.org/x/tools v0.36.0 // indirect
 	google.golang.org/protobuf v1.36.9 // indirect
+	moul.io/http2curl v1.0.0 // indirect
 )
