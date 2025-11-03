@@ -1,9 +1,9 @@
 package clients
 
 import (
-	fieldConfig "payment-service/clients/config"
-	userConfig "payment-service/clients/user"
-	"payment-service/config"
+	orderConfig "order-service/clients/config"
+	userConfig "order-service/clients/user"
+	"order-service/config"
 )
 
 type RegistryClient struct{}
@@ -18,9 +18,9 @@ func NewRegistryClient() IRegistryClient {
 
 func (rc *RegistryClient) GetUser() userConfig.IUserClient {
 	return userConfig.NewUserClient(
-		fieldConfig.NewClientConfig(
-			fieldConfig.WithBaseURL(config.Config.InternalService.User.Host),
-			fieldConfig.WithSignatureKey(config.Config.InternalService.User.SignatureKey),
+		orderConfig.NewClientConfig(
+			orderConfig.WithBaseURL(config.Config.InternalService.User.Host),
+			orderConfig.WithSignatureKey(config.Config.InternalService.User.SignatureKey),
 		),
 	)
 }

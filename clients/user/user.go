@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	clientConfig "payment-service/clients/config"
-	"payment-service/common/util"
-	"payment-service/config"
-	"payment-service/constants"
+	clientConfig "order-service/clients/config"
+	"order-service/common/util"
+	"order-service/config"
+	"order-service/constants"
 	"time"
 )
 
