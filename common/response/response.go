@@ -2,8 +2,8 @@ package response
 
 import (
 	"net/http"
-	constants "payment-service/constants"
-	ErrConst "payment-service/constants/error"
+	constants "order-service/constants"
+	ErrConst "order-service/constants/error"
 
 	"github.com/gin-gonic/gin"
 )
