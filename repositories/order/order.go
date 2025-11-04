@@ -9,6 +9,8 @@ import (
 	errOrder "order-service/constants/error/order"
 	"order-service/domain/dto"
 	"order-service/domain/models"
+	"strconv"
+	"time"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -87,4 +89,30 @@ func (or *OrderRepository) Create(context.Context, *gorm.DB, *models.Order) (*mo
 }
 
 func (or *OrderRepository) Update(context.Context, *gorm.DB, string, *models.Order, uuid.UUID) error {
+}
+
+func (or *OrderRepository) incrementCode(ctx context.Context) (*string, error) {
+	var (
+		order  *models.Order
+		result string
+		today  = time.Now().Format("20060102")
+	)
+
+	err := or.db.WithContext(ctx).Order("id desc").First(&order).Error
+	if err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errWrap.WrapError(errConstant.ErrSQLError)
+		}
+	}
+
+	if order.ID != 0 {
+		orderCode := order.Code
+		splitOrderName, _ := strconv.Atoi(orderCode[4:9])
+		code := splitOrderName + 1
+		result = fmt.Sprintf("ORD-%05D-%s", code, today)
+	} else {
+		result = fmt.Sprintf("ORD-%5d-%s", 1, today)
+	}
+
+	return &result, nil
 }
