@@ -2,9 +2,11 @@ package repositories
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	errWrap "order-service/common/error"
 	errConstant "order-service/constants/error"
+	errOrder "order-service/constants/error/order"
 	"order-service/domain/dto"
 	"order-service/domain/models"
 
@@ -59,6 +61,9 @@ func (or *OrderRepository) FindByUserID(ctx context.Context, userID string) ([]m
 	var orders []models.Order
 	err := or.db.WithContext(ctx).Where("user_id = ?", userID).Find(&orders).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errWrap.WrapError(errOrder.ErrOrderNotFound)
+		}
 		return nil, errWrap.WrapError(errConstant.ErrSQLError)
 	}
 
@@ -69,6 +74,9 @@ func (or *OrderRepository) FindByUUID(ctx context.Context, uuid string) (*models
 	var order models.Order
 	err := or.db.WithContext(ctx).Where("uuid = ?", uuid).First(&order).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errWrap.WrapError(errOrder.ErrOrderNotFound)
+		}
 		return nil, errWrap.WrapError(errConstant.ErrSQLError)
 	}
 
