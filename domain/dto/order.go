@@ -12,10 +12,10 @@ type OrderRequest struct {
 }
 
 type OrderRequestParam struct {
-	Page       int    `json:"page"`
-	Limit      int    `json:"limit"`
-	SortColumn string `json:"sortColumn"`
-	SortOrder  string `json:"sortOrder"`
+	Page       int     `json:"page"`
+	Limit      int     `json:"limit"`
+	SortColumn *string `json:"sortColumn"`
+	SortOrder  *string `json:"sortOrder"`
 }
 
 type OrderResponse struct {
