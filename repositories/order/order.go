@@ -55,7 +55,14 @@ func (or *OrderRepository) FindAllWithPagination(ctx context.Context, param *dto
 	return orders, total, nil
 }
 
-func (or *OrderRepository) FindByUserID(context.Context, string) ([]models.Order, error) {
+func (or *OrderRepository) FindByUserID(ctx context.Context, userID string) ([]models.Order, error) {
+	var orders []models.Order
+	err := or.db.WithContext(ctx).Where("user_id = ?", userID).Find(&orders).Error
+	if err != nil {
+		return nil, errWrap.WrapError(errConstant.ErrSQLError)
+	}
+
+	return orders, nil
 }
 
 func (or *OrderRepository) FindByUUID(ctx context.Context, uuid string) (*models.Order, error) {
