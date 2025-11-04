@@ -25,7 +25,7 @@ type IOrderRepository interface {
 	FindByUserID(context.Context, string) ([]models.Order, error)
 	FindByUUID(context.Context, string) (*models.Order, error)
 	Create(context.Context, *gorm.DB, *models.Order) (*models.Order, error)
-	Update(context.Context, *gorm.DB, string, *models.Order, uuid.UUID) error
+	Update(context.Context, *gorm.DB, *models.Order, uuid.UUID) error
 }
 
 func NewOrderRepository(db *gorm.DB) IOrderRepository {
@@ -109,7 +109,13 @@ func (or *OrderRepository) Create(ctx context.Context, tx *gorm.DB, param *model
 	return order, nil
 }
 
-func (or *OrderRepository) Update(context.Context, *gorm.DB, string, *models.Order, uuid.UUID) error {
+func (or *OrderRepository) Update(ctx context.Context, tx *gorm.DB, request *models.Order, uuid uuid.UUID) error {
+	err := tx.WithContext(ctx).Model(&models.Order{}).Where("uuid = ?", uuid).Updates(request).Error
+	if err != nil {
+		return errWrap.WrapError(errConstant.ErrSQLError)
+	}
+
+	return nil
 }
 
 func (or *OrderRepository) incrementCode(ctx context.Context) (*string, error) {
@@ -130,7 +136,7 @@ func (or *OrderRepository) incrementCode(ctx context.Context) (*string, error) {
 		orderCode := order.Code
 		splitOrderName, _ := strconv.Atoi(orderCode[4:9])
 		code := splitOrderName + 1
-		result = fmt.Sprintf("ORD-%05D-%s", code, today)
+		result = fmt.Sprintf("ORD-%5d-%s", code, today)
 	} else {
 		result = fmt.Sprintf("ORD-%5d-%s", 1, today)
 	}
