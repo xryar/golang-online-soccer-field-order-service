@@ -18,7 +18,7 @@ type IRegistryRepository interface {
 	GetOrderHistory() orderHistoryRepository.IOrderHistoryRepository
 }
 
-func NewRegistry(db *gorm.DB) IRegistryRepository {
+func NewRegistryRepository(db *gorm.DB) IRegistryRepository {
 	return &Registry{db: db}
 }
 
