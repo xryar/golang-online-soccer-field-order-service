@@ -58,8 +58,14 @@ func (or *OrderRepository) FindAllWithPagination(ctx context.Context, param *dto
 func (or *OrderRepository) FindByUserID(context.Context, string) ([]models.Order, error) {
 }
 
-func (or *OrderRepository) FindByUUID(context.Context, string) (*models.Order, error) {
+func (or *OrderRepository) FindByUUID(ctx context.Context, uuid string) (*models.Order, error) {
+	var order models.Order
+	err := or.db.WithContext(ctx).Where("uuid = ?", uuid).First(&order).Error
+	if err != nil {
+		return nil, errWrap.WrapError(errConstant.ErrSQLError)
+	}
 
+	return &order, nil
 }
 
 func (or *OrderRepository) Create(context.Context, *gorm.DB, *models.Order) (*models.Order, error) {
