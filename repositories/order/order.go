@@ -85,7 +85,28 @@ func (or *OrderRepository) FindByUUID(ctx context.Context, uuid string) (*models
 	return &order, nil
 }
 
-func (or *OrderRepository) Create(context.Context, *gorm.DB, *models.Order) (*models.Order, error) {
+func (or *OrderRepository) Create(ctx context.Context, tx *gorm.DB, param *models.Order) (*models.Order, error) {
+	code, err := or.incrementCode(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	order := &models.Order{
+		UUID:   uuid.New(),
+		Code:   *code,
+		UserId: param.UserId,
+		Amount: param.Amount,
+		Date:   param.Date,
+		Status: param.Status,
+		IsPaid: param.IsPaid,
+	}
+
+	err = tx.WithContext(ctx).Create(order).Error
+	if err != nil {
+		return nil, errWrap.WrapError(errConstant.ErrSQLError)
+	}
+
+	return order, nil
 }
 
 func (or *OrderRepository) Update(context.Context, *gorm.DB, string, *models.Order, uuid.UUID) error {
