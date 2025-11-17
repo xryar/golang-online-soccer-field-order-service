@@ -9,8 +9,8 @@ import (
 )
 
 type OrderService struct {
-	repositories repositories.IRegistryRepository
-	client       clients.IRegistryClient
+	repository repositories.IRegistryRepository
+	client     clients.IRegistryClient
 }
 
 type IOrderService interface {
@@ -21,15 +21,48 @@ type IOrderService interface {
 	HandlePayment(context.Context, *dto.PaymentData) error
 }
 
-func NewOrderService(repositories repositories.IRegistryRepository, client clients.IRegistryClient) IOrderService {
+func NewOrderService(repository repositories.IRegistryRepository, client clients.IRegistryClient) IOrderService {
 	return &OrderService{
-		repositories: repositories,
-		client:       client,
+		repository: repository,
+		client:     client,
 	}
 }
 
-func (os *OrderService) GetAllWithPagination(context.Context, *dto.OrderRequestParam) (*util.PaginationResult, error) {
-	panic("implement me")
+func (os *OrderService) GetAllWithPagination(ctx context.Context, param *dto.OrderRequestParam) (*util.PaginationResult, error) {
+	orders, total, err := os.repository.GetOrder().FindAllWithPagination(ctx, param)
+	if err != nil {
+		return nil, err
+	}
+
+	orderResult := make([]dto.OrderResponse, 0, len(orders))
+	for _, order := range orders {
+		user, err := os.client.GetUser().GetUserByUUID(ctx, order.UserId)
+		if err != nil {
+			return nil, err
+		}
+
+		orderResult = append(orderResult, dto.OrderResponse{
+			UUID:      order.UUID,
+			Code:      order.Code,
+			Username:  user.Name,
+			Amount:    order.Amount,
+			Status:    order.Status.GetStatusString(),
+			OrderDate: order.Date,
+			CreatedAt: *order.CreatedAt,
+			UpdatedAt: *order.UpdatedAt,
+		})
+	}
+
+	paginationParam := util.PaginationParam{
+		Page:  param.Page,
+		Limit: param.Limit,
+		Count: total,
+		Data:  orderResult,
+	}
+
+	response := util.GeneratePagination(paginationParam)
+
+	return &response, nil
 }
 
 func (os *OrderService) GetByOrderID(context.Context, string) (*dto.OrderResponse, error) {
