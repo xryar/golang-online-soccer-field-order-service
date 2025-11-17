@@ -41,6 +41,10 @@ func (p OrderStatus) GetStatusString() OrderStatusString {
 	return mapIntToString[p]
 }
 
-func (ps OrderStatusString) GetStatusInt() OrderStatus {
-	return mapStringToInt[ps]
+func (p OrderStatusString) GetStatusInt() OrderStatus {
+	return mapStringToInt[p]
+}
+
+func (p OrderStatusString) GetStatusString() OrderStatusString {
+	return p
 }
