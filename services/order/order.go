@@ -248,8 +248,56 @@ func (os *OrderService) Create(ctx context.Context, request *dto.OrderRequest) (
 	return &response, nil
 }
 
-func (os *OrderService) HandlePayment(context.Context, *dto.PaymentData) error {
-	panic("implement me")
+func (os *OrderService) HandlePayment(ctx context.Context, request *dto.PaymentData) error {
+	var (
+		err, txErr          error
+		order               *models.Order
+		orderFieldSchedules []models.OrderField
+	)
+
+	status, body := os.mapPaymentStatusToOrder(request)
+	err = os.repository.GetTX().Transaction(func(tx *gorm.DB) error {
+		txErr = os.repository.GetOrder().Update(ctx, tx, body, request.OrderID)
+		if txErr != nil {
+			return txErr
+		}
+
+		order, txErr = os.repository.GetOrder().FindByUUID(ctx, request.OrderID.String())
+		if txErr != nil {
+			return txErr
+		}
+
+		txErr = os.repository.GetOrderHistory().Create(ctx, tx, &dto.OrderHistoryRequest{
+			Status:  status.GetStatusString(),
+			OrderID: order.ID,
+		})
+
+		if request.Status == constants.SettlementPaymentStatus {
+			orderFieldSchedules, txErr = os.repository.GetOrderField().FindByOrderID(ctx, order.ID)
+			if txErr != nil {
+				return txErr
+			}
+
+			fieldScheduleIDs := make([]string, 0, len(orderFieldSchedules))
+			for _, item := range orderFieldSchedules {
+				fieldScheduleIDs = append(fieldScheduleIDs, item.FieldScheduleID.String())
+			}
+
+			txErr = os.client.GetField().UpdateStatus(&dto.UpdateFieldScheduleStatusRequest{
+				FieldScheduleIDs: fieldScheduleIDs,
+			})
+			if txErr != nil {
+				return txErr
+			}
+		}
+
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (os *OrderService) mapPaymentStatusToOrder(request *dto.PaymentData) (constants.OrderStatus, *models.Order) {
