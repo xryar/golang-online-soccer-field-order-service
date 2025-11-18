@@ -251,3 +251,37 @@ func (os *OrderService) Create(ctx context.Context, request *dto.OrderRequest) (
 func (os *OrderService) HandlePayment(context.Context, *dto.PaymentData) error {
 	panic("implement me")
 }
+
+func (os *OrderService) mapPaymentStatusToOrder(request *dto.PaymentData) (constants.OrderStatus, *models.Order) {
+	var (
+		status constants.OrderStatus
+		order  *models.Order
+	)
+
+	switch request.Status {
+	case constants.SettlementPaymentStatus:
+		status = constants.PaymentSuccess
+		order = &models.Order{
+			IsPaid:    true,
+			PaymentID: request.PaymentID,
+			PaidAt:    request.PaidAt,
+			Status:    status,
+		}
+	case constants.ExpirePaymentStatus:
+		status = constants.Expired
+		order = &models.Order{
+			IsPaid:    false,
+			PaymentID: request.PaymentID,
+			Status:    status,
+		}
+	case constants.PendingPaymentStatus:
+		status = constants.PendingPayment
+		order = &models.Order{
+			IsPaid:    false,
+			PaymentID: request.PaymentID,
+			Status:    status,
+		}
+	}
+
+	return status, order
+}
