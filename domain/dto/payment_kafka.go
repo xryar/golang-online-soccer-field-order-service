@@ -8,11 +8,11 @@ import (
 )
 
 type PaymentData struct {
-	OrderID   uuid.UUID                   `json:"orderID"`
-	PaymentID uuid.UUID                   `json:"paymentID"`
-	Status    constants.OrderStatusString `json:"status"`
-	ExpiredAt *time.Time                  `json:"expiredAt"`
-	PaidAt    *time.Time                  `json:"paidAt"`
+	OrderID   uuid.UUID                     `json:"orderID"`
+	PaymentID uuid.UUID                     `json:"paymentID"`
+	Status    constants.PaymentStatusString `json:"status"`
+	ExpiredAt *time.Time                    `json:"expiredAt"`
+	PaidAt    *time.Time                    `json:"paidAt"`
 }
 
 type PaymentContent struct {
