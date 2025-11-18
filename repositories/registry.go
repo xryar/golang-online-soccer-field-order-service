@@ -16,6 +16,7 @@ type IRegistryRepository interface {
 	GetOrder() orderRepository.IOrderRepository
 	GetOrderField() orderFieldRepository.IOrderFieldRepository
 	GetOrderHistory() orderHistoryRepository.IOrderHistoryRepository
+	GetTX() *gorm.DB
 }
 
 func NewRegistryRepository(db *gorm.DB) IRegistryRepository {
@@ -32,4 +33,8 @@ func (r *Registry) GetOrderField() orderFieldRepository.IOrderFieldRepository {
 
 func (r *Registry) GetOrderHistory() orderHistoryRepository.IOrderHistoryRepository {
 	return orderHistoryRepository.NewOrderHistoryRepository(r.db)
+}
+
+func (r *Registry) GetTX() *gorm.DB {
+	return r.db
 }
