@@ -69,7 +69,24 @@ func (oc *OrderController) GetAllWithPagination(ctx *gin.Context) {
 	})
 }
 
-func (oc *OrderController) GetByUUID(*gin.Context) {}
+func (oc *OrderController) GetByUUID(ctx *gin.Context) {
+	uuid := ctx.Param("uuid")
+	result, err := oc.service.GetOrder().GetByUUID(ctx, uuid)
+	if err != nil {
+		response.HttpResponse(response.ParamHTTPResponse{
+			Code: http.StatusBadRequest,
+			Err:  err,
+			Gin:  ctx,
+		})
+		return
+	}
+
+	response.HttpResponse(response.ParamHTTPResponse{
+		Code: http.StatusOK,
+		Data: result,
+		Gin:  ctx,
+	})
+}
 
 func (oc *OrderController) GetOrderByUserID(*gin.Context) {}
 
