@@ -88,6 +88,22 @@ func (oc *OrderController) GetByUUID(ctx *gin.Context) {
 	})
 }
 
-func (oc *OrderController) GetOrderByUserID(*gin.Context) {}
+func (oc *OrderController) GetOrderByUserID(ctx *gin.Context) {
+	result, err := oc.service.GetOrder().GetOrderByUserID(ctx.Request.Context())
+	if err != nil {
+		response.HttpResponse(response.ParamHTTPResponse{
+			Code: http.StatusBadRequest,
+			Err:  err,
+			Gin:  ctx,
+		})
+		return
+	}
+
+	response.HttpResponse(response.ParamHTTPResponse{
+		Code: http.StatusOK,
+		Data: result,
+		Gin:  ctx,
+	})
+}
 
 func (oc *OrderController) Create(*gin.Context) {}
